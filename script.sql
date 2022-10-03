@@ -7,7 +7,7 @@ use InfoBeta;
 CREATE TABLE usuarios(
   id_usuario INT PRIMARY KEY IDENTITY,
   nome       CHAR(50) NOT NULL,
-  id_setor   INT      NOT NULL --criar relação - constraint
+  id_setor   INT
 );
 
 CREATE TABLE setores(
@@ -33,7 +33,21 @@ CREATE TABLE atendimentos(
 );
   GO
 
---TODO criar chaves estrangeiras - constraints 
+--Criação de relações, foreign keys
+ALTER TABLE usuarios
+  ADD CONSTRAINT fk_usuarios_setor FOREIGN KEY (id_setor)
+    REFERENCES setores (id_setor);
+
+ALTER TABLE atendimentos
+  ADD CONSTRAINT fk_atendimentos_usuario FOREIGN KEY (id_usuario)
+    REFERENCES usuarios (id_usuario);
+
+ALTER TABLE atendimentos
+  ADD CONSTRAINT fk_atendimentos_atendente FOREIGN KEY (id_atendente)
+    REFERENCES atendentes (id_atendente);
+
+  GO
+
 /*
 DROP TABLE usuarios;
 DROP TABLE setores;
