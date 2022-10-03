@@ -33,6 +33,7 @@ CREATE TABLE atendimentos(
 );
   GO
 
+--TODO criar chaves estrangeiras - constraints 
 /*
 DROP TABLE usuarios;
 DROP TABLE setores;
