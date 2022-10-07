@@ -3,7 +3,7 @@
 
   $serverName = "BR-PF1CEG9Z\SQLEXPRESS";
   #$serverName = "DESKTOP-GBJD0TF\SQLEXPRESS";
-  $dbName     = "EstudosWE";
+  $dbName     = "InfoBeta";
   $userName   = "sa";
   $password   = "Ve#!N57Qdm*b1ch0";
 
