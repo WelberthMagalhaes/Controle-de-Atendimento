@@ -9,6 +9,18 @@ include_once("connect.php");
 <!DOCTYPE html>
 <html lang="pt-br" dir="ltr">
 
+<style>
+    /*table,
+    th,
+    td {
+        border: 1px solid black;
+    };*/
+
+    tr {
+        border-bottom: 1px solid #ddd;
+    }
+</style>
+
 <head>
     <meta charset="UTF-8">
     <title>HOME</title>
@@ -33,6 +45,16 @@ include_once("connect.php");
 
     <?php
     $action = (isset($_GET['action'])) ? $_GET['action'] : NULL;
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['function'])) { // aqui é onde vai decorrer a chamada se houver um *request* POST
+        $function = $_POST['function'];
+        if (function_exists($function)) {
+            inserirDemanda();
+        } else {
+            echo 'Erro na verificação da função!';
+        }
+    }
+
     ?>
     <div>
         <?php switch ($action):
@@ -43,8 +65,9 @@ include_once("connect.php");
                     <br>
                 </div>
                 <div>
-                    <!--TODO ação do form inserir-->
                     <form action="index.php" method="post">
+
+                        <input type="hidden" name="function" value="inserirDemanda">
 
                         <label>Descrição</label><br>
                         <input type="text" name="descricao_add" id="descricao_add" required>
@@ -91,14 +114,14 @@ include_once("connect.php");
                         <hr>
 
                         <label>Data de encerramento</label><br>
-                        <input type="date" name="data_termino">
+                        <input type="date" name="data_termino" value="">
                         <hr>
 
                         <label>Observações</label><br>
                         <input type="text" name="observacoes_add" placeholder="...">
                         <br><br>
 
-                        <button type="submit" name="submit">Adicionar</button>
+                        <input type="submit" name="submit" value="Adicionar">
 
                     </form>
                 </div>
@@ -108,6 +131,52 @@ include_once("connect.php");
             <?php
             case "edit": ?>
                 <div>
+                    <?php $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
+	                                    FROM atendimentos AS a
+		                                INNER JOIN usuarios   AS u    ON a.id_usuario = u.id_usuario
+                                        INNER JOIN atendentes AS aten ON a.id_atendente = aten.id_atendente;";
+
+                    $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
+                    ?>
+
+                    <table style="width:100%">
+                        <tr>
+                            <th>ID</th>
+                            <th>Descrição</th>
+                            <th>Custo</th>
+                            <th>Usuário</th>
+                            <th>Atendente</th>
+                            <th>Data de abertura</th>
+                            <th>Previsão de atendimento</th>
+                            <th>Data de término</th>
+                            <th>Observações</th>
+                        </tr>
+                        <?php while ($obj = sqlsrv_fetch_object($resultado)) { ?>
+                            <!--TODO corrigir erro de data-->
+                            <tr>
+                                <td><?php echo $obj->id_demanda ?></td>
+                                <td><?php echo $obj->descricao_demanda ?></td>
+                                <td><?php echo $obj->custo ?></td>
+                                <td><?php echo $obj->nomeUsuario ?></td>
+                                <td><?php echo $obj->nomeAtendente ?></td>
+                                <td><?php $date = new DateTime($obj->data_cadastro->date);
+                                    echo $date->format('m/d/Y');
+                                    ?></td>
+                                <td><?php $date2 = new DateTime($obj->data_previsao_atendimento->date);
+                                    echo $date2->format('m/d/Y');
+                                    ?></td>
+                                <td><?php $date3 = new DateTime($obj->data_termino_atendimento->date);
+                                    echo $date3->format('m/d/Y');
+                                    ?></td>
+                                <td><?php echo $obj->observacoes ?></td>
+
+
+                            </tr>
+                        <?php } ?>
+                    </table>
+
+
+
                     <form>
 
                     </form>
@@ -128,9 +197,11 @@ include_once("connect.php");
     </div>
 
 
+
 </body>
 
 </html>
+
 
 <?php
 
@@ -139,7 +210,7 @@ function inserirDemanda()
     global $conn;
     $query = "INSERT INTO atendimentos(descricao_demanda,custo,id_usuario,id_atendente,data_cadastro,data_previsao_atendimento,data_termino_atendimento,observacoes)
                     VALUES (?,?,?,?,?,?,?,?)";
-    
+
     $params = [
         $_POST["descricao_add"],
         $_POST["custo_add"],
@@ -152,10 +223,51 @@ function inserirDemanda()
     ];
 
     $resultado = sqlsrv_query($conn, $query, $params) or die("Falha " . $query);
-
+    if (mb_strpos($resultado, "Falha") == false) {
+        echo "<script>
+                alert('Dados adicionados com sucesso!');
+             </script>";
+        exit;
+    } else {
+        echo "<script>
+                alert('Falha' + <?php echo $query ?>);
+            </script>";
+        exit;
+    }
 }
-
-
-
-
 ?>
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>JavaScript Confirm Box</h2>
+
+
+<button onclick="myFunction()">Try it</button>
+
+<p id="demo"></p>
+
+<script>
+function myFunction() {
+  var txt;
+  if (confirm("Press a button!")) {
+    txt = "You pressed OK!";
+  } else {
+    txt = "You pressed Cancel!";
+  }
+  document.getElementById("demo").innerHTML = txt;
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+-->
