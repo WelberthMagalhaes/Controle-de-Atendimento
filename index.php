@@ -31,7 +31,6 @@ include_once("connect.php");
         </nav>
     </div>
 
-    <!--TODO Criar SwitchCase-->
     <?php
     $action = (isset($_GET['action'])) ? $_GET['action'] : NULL;
     ?>
@@ -44,17 +43,19 @@ include_once("connect.php");
                     <br>
                 </div>
                 <div>
+                    <!--TODO ação do form inserir-->
                     <form action="index.php" method="post">
+
                         <label>Descrição</label><br>
-                        <input type="text" name="descricao_add" id="descricao_add">
+                        <input type="text" name="descricao_add" id="descricao_add" required>
                         <hr>
 
                         <label>Custo</label><br>
-                        <input type="number" name="custo_add" placeholder="00,00">
+                        <input type="number" name="custo_add" placeholder="00,00" required>
                         <hr>
 
                         <label>Usuário</label><br>
-                        <select name="id_usuario_add">
+                        <select name="id_usuario_add" required>
                             <option value="0">Escolha</option>
                             <?php $query = "SELECT * FROM usuarios ORDER BY nome";
                             $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
@@ -68,7 +69,7 @@ include_once("connect.php");
                         <hr>
 
                         <label>Atendente</label><br>
-                        <select>
+                        <select name="id_atendente_add" required>
                             <option value="0">Escolha</option>
                             <?php $query = "SELECT * FROM atendentes ORDER BY nome";
                             $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
@@ -82,11 +83,11 @@ include_once("connect.php");
                         <hr>
 
                         <label>Data do cadastro</label><br>
-                        <input type="date" name="data_add">
+                        <input type="date" name="data_add" required>
                         <hr>
 
                         <label>Previsão de atendimento</label><br>
-                        <input type="date" name="data_previsao">
+                        <input type="date" name="data_previsao" required>
                         <hr>
 
                         <label>Data de encerramento</label><br>
@@ -97,7 +98,7 @@ include_once("connect.php");
                         <input type="text" name="observacoes_add" placeholder="...">
                         <br><br>
 
-                        <input type="submit" name="submit" value="Adicionar">
+                        <button type="submit" name="submit">Adicionar</button>
 
                     </form>
                 </div>
@@ -130,3 +131,31 @@ include_once("connect.php");
 </body>
 
 </html>
+
+<?php
+
+function inserirDemanda()
+{
+    global $conn;
+    $query = "INSERT INTO atendimentos(descricao_demanda,custo,id_usuario,id_atendente,data_cadastro,data_previsao_atendimento,data_termino_atendimento,observacoes)
+                    VALUES (?,?,?,?,?,?,?,?)";
+    
+    $params = [
+        $_POST["descricao_add"],
+        $_POST["custo_add"],
+        $_POST["id_usuario_add"],
+        $_POST["id_atendente_add"],
+        $_POST["data_add"],
+        $_POST["data_previsao"],
+        $_POST["data_termino"],
+        $_POST["observacoes_add"]
+    ];
+
+    $resultado = sqlsrv_query($conn, $query, $params) or die("Falha " . $query);
+
+}
+
+
+
+
+?>
