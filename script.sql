@@ -26,7 +26,7 @@ CREATE TABLE atendimentos(
   custo                       FLOAT       NOT NULL,
   id_usuario                  INT         NOT NULL,
   id_atendente                INT         NOT NULL,
-  data_cadastro               DATETIME    NOT NULL,
+  data_cadastro               DATE        NOT NULL,
   data_previsao_atendimento   DATE        NOT NULL,
   data_termino_atendimento    DATE,
   observacoes                 VARCHAR(30)

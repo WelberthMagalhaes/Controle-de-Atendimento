@@ -1,8 +1,8 @@
 <?php
 
 
-  $serverName = "BR-PF1CEG9Z\SQLEXPRESS";
-  #$serverName = "DESKTOP-GBJD0TF\SQLEXPRESS";
+  #$serverName = "BR-PF1CEG9Z\SQLEXPRESS";
+  $serverName = "DESKTOP-GBJD0TF\SQLEXPRESS";
   $dbName     = "InfoBeta";
   $userName   = "sa";
   $password   = "Ve#!N57Qdm*b1ch0";

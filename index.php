@@ -152,25 +152,30 @@ include_once("connect.php");
                             <th>Observações</th>
                         </tr>
                         <?php while ($obj = sqlsrv_fetch_object($resultado)) { ?>
-                            <!--TODO corrigir erro de data-->
+
                             <tr>
                                 <td><?php echo $obj->id_demanda ?></td>
                                 <td><?php echo $obj->descricao_demanda ?></td>
                                 <td><?php echo $obj->custo ?></td>
                                 <td><?php echo $obj->nomeUsuario ?></td>
                                 <td><?php echo $obj->nomeAtendente ?></td>
-                                <td><?php $date = new DateTime($obj->data_cadastro->date);
+                                <td><?php $var = get_object_vars($obj->data_cadastro);
+                                    $date = new DateTime($var["date"]);
+                                    echo $date->format('d/m/Y');
+                                    ?></td>
+                                <td><?php $var = get_object_vars($obj->data_previsao_atendimento);
+                                    $date = new DateTime($var["date"]);
+                                    echo $date->format('d/m/Y');
+                                    ?></td>
+                                <td><?php $var = get_object_vars($obj->data_termino_atendimento);
+                                    $date = new DateTime($var["date"]);
                                     echo $date->format('m/d/Y');
-                                    ?></td>
-                                <td><?php $date2 = new DateTime($obj->data_previsao_atendimento->date);
-                                    echo $date2->format('m/d/Y');
-                                    ?></td>
-                                <td><?php $date3 = new DateTime($obj->data_termino_atendimento->date);
-                                    echo $date3->format('m/d/Y');
                                     ?></td>
                                 <td><?php echo $obj->observacoes ?></td>
 
-
+                                <!--TODO função deletarDemanda e clickDeletar-->
+                                <td> <button type="">Alterar</button> </td>
+                                <td> <button type="" onclick="<?php deletarDemanda('789'); ?>">Deletar</button> </td>
                             </tr>
                         <?php } ?>
                     </table>
@@ -181,17 +186,6 @@ include_once("connect.php");
 
                     </form>
                 </div>
-
-                <!-- DELETAR-->
-            <?php
-            case "delete": ?>
-                <div>
-                    <form>
-
-                    </form>
-                </div>
-
-                <?php break; ?>
 
         <?php endswitch; ?>
     </div>
@@ -235,7 +229,20 @@ function inserirDemanda()
         exit;
     }
 }
+
+function deletarDemanda($id_demanda)
+{
+    $query = "DELETE FROM atendimentos WHERE id_demanda = 'echo $id_demanda'";
+    var_dump($query);
+}
 ?>
+
+<script>
+    function clickDeletar() {
+        var result = "";
+    }
+</script>
+
 
 
 
