@@ -31,16 +31,20 @@ include_once("connect.php");
     $action = (isset($_GET['action'])) ? $_GET['action'] : NULL;
 
 
-
+    #Inserir/alterar
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['function'])) { // aqui é onde vai decorrer a chamada se houver um *request* POST
         $function = $_POST['function'];
-        if ($function = "inserirDemanda") {
+        if ($function == "inserirDemanda") {
             inserirDemanda();
-        } elseif ($function = "alterarDemanda") {
+        } elseif ($function == "alterarDemanda") {
+            $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
+            alterarDemanda($id_demanda);
         } else {
             echo 'Erro na verificação da função!';
         }
     }
+
+
 
     ?>
 
@@ -93,7 +97,7 @@ include_once("connect.php");
                         <hr>
 
                         <label>Data do cadastro</label><br>
-                        <input type="date" name="data_add" value="<?php echo date_create()->format('Y-m-d')?>" required>
+                        <input type="date" name="data_add" value="<?php echo date_create()->format('Y-m-d') ?>" required>
                         <hr>
 
                         <label>Previsão de atendimento</label><br>
@@ -118,7 +122,83 @@ include_once("connect.php");
 
             <?php
             case "edit": ?>
+                <?php $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
 
+                $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, a.id_usuario, a.id_atendente, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
+	                                    FROM atendimentos AS a
+		                                INNER JOIN usuarios   AS u    ON a.id_usuario = u.id_usuario
+                                        INNER JOIN atendentes AS aten ON a.id_atendente = aten.id_atendente
+                                        WHERE a.id_demanda = $id_demanda;";
+
+                $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
+                $obj = sqlsrv_fetch_object($resultado);
+                ?>
+
+
+                <div>
+                    <h4>Alterar:</h4>
+                </div>
+                <div>
+                    <form action="index.php?id_demanda=<?php echo $obj->id_demanda ?>" method="post">
+
+                        <input type="hidden" name="function" value="alterarDemanda">
+
+                        <label>Descrição</label><br>
+                        <input type="text" name="descricao" id="descricao_add" value="<?php echo $obj->descricao_demanda ?>" required>
+                        <hr>
+
+                        <label>Custo</label><br>
+                        <input type="number" name="custo" placeholder="00,00" value="<?php echo $obj->custo ?>" min="0" step="0.01" required>
+                        <hr>
+                        <label>Usuário</label><br>
+                        <select name="id_usuario" required>
+                            <option value="<?php echo $obj->id_usuario ?>"> <?php echo $obj->nomeUsuario ?> </option>
+                            <?php var_dump($obj->nomeUsuario) ?>
+                            <?php $query = "SELECT * FROM usuarios ORDER BY nome";
+                            $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
+
+                            while ($obj2 = sqlsrv_fetch_object($resultado)) { ?>
+                                <option value="<?php echo $obj2->id_usuario ?>"> <?php echo $obj2->nome ?> </option>
+
+                            <?php } ?>
+
+                        </select>
+                        <hr>
+
+                        <label>Atendente</label><br>
+                        <select name="id_atendente" required>
+                            <option value="<?php echo $obj->id_atendente ?>"> <?php echo $obj->nomeAtendente ?> </option>
+                            <?php $query = "SELECT * FROM atendentes ORDER BY nome";
+                            $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
+
+                            while ($obj3 = sqlsrv_fetch_object($resultado)) { ?>
+                                <option value="<?php echo $obj3->id_atendente ?>"> <?php echo $obj3->nome ?> </option>
+
+                            <?php } ?>
+
+                        </select>
+                        <hr>
+
+                        <label>Data do cadastro</label><br>
+                        <input type="date" name="data" value="<?php echo $obj->data_cadastro->format('Y-m-d') ?>" required>
+                        <hr>
+
+                        <label>Previsão de atendimento</label><br>
+                        <input type="date" name="data_previsao" value="<?php echo $obj->data_previsao_atendimento->format('Y-m-d') ?>" required>
+                        <hr>
+
+                        <label>Data de encerramento</label><br>
+                        <input type="date" name="data_termino" value="<?php echo $obj->data_termino_atendimento->format('Y-m-d') ?>">
+                        <hr>
+
+                        <label>Observações</label><br>
+                        <input type="text" name="observacoes" placeholder="..." value="<?php echo $obj->observacoes ?>">
+                        <br><br>
+
+                        <input type="submit" name="submit" value="Salvar">
+
+                    </form>
+                </div>
 
                 <?php break; ?>
 
@@ -126,14 +206,11 @@ include_once("connect.php");
 
             <?php
             case "delete":
-
                 $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
                 deletarDemanda($id_demanda);
-
                 break;
 
             default:
-
             ?>
                 <div>
                     <?php $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
@@ -181,14 +258,12 @@ include_once("connect.php");
                                     <td><?php echo $obj->observacoes ?></td>
 
                                     <!--TODO função deletarDemanda e clickDeletar-->
-                                    <td> <a href="index.php?action=edit&id_demanda= <?php echo $obj->id_demanda ?>">Alterar</a> </td>
-                                    <td> <a href="index.php?action=delete&id_demanda=<?php echo $obj->id_demanda ?>" onclick="return confirm(" Confirmar exclusão do atendimento?")">Deletar</a> </td>
+                                    <td> <a href="index.php?action=edit&id_demanda=<?php echo $obj->id_demanda ?>">Alterar</a> </td>
+                                    <td> <a href="index.php?action=delete&id_demanda=<?php echo $obj->id_demanda ?>">Deletar</a> </td>
                                 </tr>
                         <?php }
                         } ?>
                     </table>
-
-                    <!--TODO refazer passo a passo deletar-->
 
                     <form>
 
@@ -232,7 +307,6 @@ function inserirDemanda()
         $_POST["data_termino"],
         $_POST["observacoes_add"]
     ];
-
     $resultado = sqlsrv_query($conn, $query, $params) or die("Falha " . $query);
     if (mb_strpos($resultado, "Falha") == false) {
         echo "<script>
@@ -248,7 +322,6 @@ function inserirDemanda()
     }
 }
 
-#TODO funcoes para deletar
 function deletarDemanda($id_demanda)
 {
     global $conn;
@@ -260,25 +333,41 @@ function deletarDemanda($id_demanda)
         <script>
             alert('Atendimento excluído com sucesso!');
         </script>;
-<?php
+        <?php header("location: index.php");
+        exit; ?>
+    <?php
     } else {
         echo "<script>
                 alert('Falha' + <?php echo $query ?>);
             </script>";
     }
-    header("location: index.php");
+}
+
+function alterarDemanda($id_demanda)
+{
+    global $conn;
+    $query = "UPDATE atendimentos SET descricao_demanda = ?,  custo = ?, id_usuario = ?, id_atendente = ?, data_cadastro = ?, data_previsao_atendimento = ?, data_termino_atendimento = ?, observacoes = ?
+	            WHERE id_demanda = ?";
+    $params = [
+        $_POST["descricao"],
+        $_POST["custo"],
+        $_POST["id_usuario"],
+        $_POST["id_atendente"],
+        $_POST["data"],
+        $_POST["data_previsao"],
+        $_POST["data_termino"],
+        $_POST["observacoes"],
+        $id_demanda
+    ];
+    $resultado = sqlsrv_query($conn, $query, $params) or die("Falha " . $query);
+    header("location:index.php");
     exit;
 }
 
+
 ?>
 
-<script>
-    function clickDeletar() {
-        var result = "";
 
-        console.log("AQUI");
-    }
-</script>
 
 
 <!-- 
