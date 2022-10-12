@@ -31,7 +31,7 @@ include_once("connect.php");
     $action = (isset($_GET['action'])) ? $_GET['action'] : NULL;
 
 
-    #Inserir/alterar
+    #Inserir/alterar/pesquisar
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['function'])) { // aqui é onde vai decorrer a chamada se houver um *request* POST
         $function = $_POST['function'];
         if ($function == "inserirDemanda") {
@@ -39,6 +39,8 @@ include_once("connect.php");
         } elseif ($function == "alterarDemanda") {
             $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
             alterarDemanda($id_demanda);
+        } elseif ($function == "pesquisaPendentes") {
+            #TODO criar consultas pesquisa
         } else {
             echo 'Erro na verificação da função!';
         }
@@ -50,7 +52,7 @@ include_once("connect.php");
 
     <div>
         <?php switch ($action):
-                #!-- INCLUIR-->
+                #INCLUIR
             case "add": ?>
                 <div>
                     <h4>Nova demanda:</h4>
@@ -105,7 +107,7 @@ include_once("connect.php");
                         <hr>
 
                         <label>Data de encerramento</label><br>
-                        <input type="date" name="data_termino" value="">
+                        <input type="date" name="data_termino" value="NULL">
                         <hr>
 
                         <label>Observações</label><br>
@@ -116,11 +118,9 @@ include_once("connect.php");
 
                     </form>
                 </div>
-                <?php break; ?>
+            <?php break;
 
-                <!-- EDITAR-->
-
-            <?php
+                #EDITAR
             case "edit": ?>
                 <?php $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
 
@@ -188,7 +188,11 @@ include_once("connect.php");
                         <hr>
 
                         <label>Data de encerramento</label><br>
-                        <input type="date" name="data_termino" value="<?php echo $obj->data_termino_atendimento->format('Y-m-d') ?>">
+                        <input type="date" name="data_termino" value="<?php if ($obj->data_termino_atendimento->format('d/m/Y') == '01/01/1900') {
+                                                                            echo "";
+                                                                        } else {
+                                                                            echo $obj->data_termino_atendimento->format('d/m/Y');
+                                                                        } ?>">
                         <hr>
 
                         <label>Observações</label><br>
@@ -200,16 +204,84 @@ include_once("connect.php");
                     </form>
                 </div>
 
-                <?php break; ?>
+            <?php break;
 
-                <!-- DELETAR-->
-
-            <?php
+                #DELETAR            
             case "delete":
+
                 $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
                 deletarDemanda($id_demanda);
-                break;
+            break;
 
+                #PESQUISAR
+            case "pesquisa": ?>
+                <h4>Pesquisar Atendimentos</h4>
+                <form name=pesquisar method=post action=>
+                    <table>
+                        <tr>
+                            <td>
+                                <a href="index.php?function=pesquisaPendentes">Ver atendimentos pendentes</a><br><br>
+                                <a href="index.php?function=pesquisaFinalizados">Ver atendimentos finalizados</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <hr>
+                    <table>
+                        <tr>
+                            <td>Usuário:</td>
+                            <td><input type="text" name="usuario" size="40" placeholder="Inserir nome ou parte dele"></td>
+                        </tr>
+                        <tr>
+                            <td>Data do cadastro:</td>
+                            <td><input type="date" name="data" size="40"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Atendente:</td>
+                            <td>
+                                <select name="atendente">
+
+                                    <option value="0">Escolha</option>
+                                    <?php $query = "SELECT * FROM atendentes ORDER BY nome";
+                                    $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
+
+                                    while ($obj = sqlsrv_fetch_object($resultado)) { ?>
+                                        <option value="<?php echo $obj->id_atendente ?>"> <?php echo $obj->nome ?> </option>
+
+                                    <?php } ?>
+
+                                </select>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="finalizado">Atendimento finalizado</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="finalizado" name="finalizado" value="finalizado"><br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="finalizado">Atendimento pendente</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="pendente" name="pendente" value="pendente"><br>
+                            </td>
+                        </tr>
+                        
+
+                    </table>
+                    <br>
+                    <input type=submit class=bt Value=Pesquisar>
+                </form>
+                <br>
+                <br>
+
+
+            <?php break;
+                #HOME
             default:
             ?>
                 <div>
@@ -254,7 +326,13 @@ include_once("connect.php");
                                     <td><?php echo $obj->nomeAtendente ?></td>
                                     <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
                                     <td><?php echo $obj->data_previsao_atendimento->format('d/m/Y'); ?></td>
-                                    <td><?php echo $obj->data_termino_atendimento->format('d/m/Y'); ?></td>
+                                    <td>
+                                        <?php if ($obj->data_termino_atendimento->format('d/m/Y') == '01/01/1900') {
+                                            echo "";
+                                        } else {
+                                            echo $obj->data_termino_atendimento->format('d/m/Y');
+                                        } ?>
+                                    </td>
                                     <td><?php echo $obj->observacoes ?></td>
 
                                     <!--TODO função deletarDemanda e clickDeletar-->
@@ -280,6 +358,8 @@ include_once("connect.php");
             <a style="margin-right: 30px" href="index.php">Home</a>
 
             <a style="margin-right: 30px" href="index.php?action=add">Incluir</a>
+
+            <a style="margin-rigth: 30px" href="index.php?action=pesquisa">Pesquisar</a>
         </nav>
     </div>
 
@@ -296,7 +376,6 @@ function inserirDemanda()
     global $conn;
     $query = "INSERT INTO atendimentos(descricao_demanda,custo,id_usuario,id_atendente,data_cadastro,data_previsao_atendimento,data_termino_atendimento,observacoes)
                     VALUES (?,?,?,?,?,?,?,?)";
-
     $params = [
         $_POST["descricao_add"],
         $_POST["custo_add"],
@@ -335,7 +414,7 @@ function deletarDemanda($id_demanda)
         </script>;
         <?php header("location: index.php");
         exit; ?>
-    <?php
+<?php
     } else {
         echo "<script>
                 alert('Falha' + <?php echo $query ?>);
