@@ -10,12 +10,6 @@ include_once("connect.php");
 <html lang="pt-br" dir="ltr">
 
 <style>
-    /*table,
-    th,
-    td {
-        border: 1px solid black;
-    };*/
-
     tr {
         border-bottom: 1px solid #ddd;
     }
@@ -31,6 +25,70 @@ include_once("connect.php");
     <div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
         <h2> ATENDIMENTO </h2>
     </div>
+    <hr>
+
+    <?php
+    $action = (isset($_GET['action'])) ? $_GET['action'] : NULL;
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['function'])) { // aqui é onde vai decorrer a chamada se houver um *request* POST
+        $function = $_POST['function'];
+        if ( $function = "inserirDemanda") {
+            inserirDemanda();
+        } else {
+            echo 'Erro na verificação da função!';
+        }
+    }
+    ?>
+
+    <div>
+        <?php $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
+	                                    FROM atendimentos AS a
+		                                INNER JOIN usuarios   AS u    ON a.id_usuario = u.id_usuario
+                                        INNER JOIN atendentes AS aten ON a.id_atendente = aten.id_atendente;";
+
+        $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
+        ?>
+
+        <table style="width:100%">
+            <tr>
+                <th>#</th>
+                <th>Descrição</th>
+                <th>Custo</th>
+                <th>Usuário</th>
+                <th>Atendente</th>
+                <th>Data de abertura</th>
+                <th>Previsão de atendimento</th>
+                <th>Data de término</th>
+                <th>Observações</th>
+            </tr>
+            <?php $count = 1 ?>
+            <?php while ($obj = sqlsrv_fetch_object($resultado)) { ?>
+
+                <tr>
+                    <td><?php echo $count++ ?></td>
+                    <td><?php echo $obj->descricao_demanda ?></td>
+                    <td><?php echo $obj->custo ?></td>
+                    <td><?php echo $obj->nomeUsuario ?></td>
+                    <td><?php echo $obj->nomeAtendente ?></td>
+                    <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
+                    <td><?php echo $obj->data_previsao_atendimento->format('d/m/Y'); ?></td>
+                    <td><?php echo $obj->data_termino_atendimento->format('d/m/Y'); ?></td>
+                    <td><?php echo $obj->observacoes ?></td>
+
+                    <!--TODO função deletarDemanda e clickDeletar-->
+                    <td> <a href="index.php?action=edit&id_demanda='$obj->id_demanda'">Alterar</a> </td>
+                    <td> <button type="" onclick="clickDeletar();">Deletar</button> </td>
+                </tr>
+            <?php } ?>
+        </table>
+
+
+
+        <form>
+
+        </form>
+    </div>
+
     <div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
         <nav>
             <a style="margin-right: 30px" href="index.php">Home</a>
@@ -43,19 +101,6 @@ include_once("connect.php");
         </nav>
     </div>
 
-    <?php
-    $action = (isset($_GET['action'])) ? $_GET['action'] : NULL;
-
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['function'])) { // aqui é onde vai decorrer a chamada se houver um *request* POST
-        $function = $_POST['function'];
-        if (function_exists($function)) {
-            inserirDemanda();
-        } else {
-            echo 'Erro na verificação da função!';
-        }
-    }
-
-    ?>
     <div>
         <?php switch ($action):
                 #!-- INCLUIR-->
@@ -128,8 +173,12 @@ include_once("connect.php");
                 <?php break; ?>
 
                 <!-- EDITAR-->
+
             <?php
             case "edit": ?>
+                <script>
+                    console.log("AQUI EDITAR");
+                </script>
                 <div>
                     <?php $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
 	                                    FROM atendimentos AS a
@@ -141,7 +190,7 @@ include_once("connect.php");
 
                     <table style="width:100%">
                         <tr>
-                            <th>ID</th>
+                            <th>#</th>
                             <th>Descrição</th>
                             <th>Custo</th>
                             <th>Usuário</th>
@@ -151,31 +200,24 @@ include_once("connect.php");
                             <th>Data de término</th>
                             <th>Observações</th>
                         </tr>
+                        <?php $count = 1 ?>
                         <?php while ($obj = sqlsrv_fetch_object($resultado)) { ?>
 
                             <tr>
-                                <td><?php echo $obj->id_demanda ?></td>
+                                <td><?php echo $count++ ?></td>
                                 <td><?php echo $obj->descricao_demanda ?></td>
                                 <td><?php echo $obj->custo ?></td>
                                 <td><?php echo $obj->nomeUsuario ?></td>
                                 <td><?php echo $obj->nomeAtendente ?></td>
-                                <td><?php $var = get_object_vars($obj->data_cadastro);
-                                    $date = new DateTime($var["date"]);
-                                    echo $date->format('d/m/Y');
-                                    ?></td>
-                                <td><?php $var = get_object_vars($obj->data_previsao_atendimento);
-                                    $date = new DateTime($var["date"]);
-                                    echo $date->format('d/m/Y');
-                                    ?></td>
-                                <td><?php $var = get_object_vars($obj->data_termino_atendimento);
-                                    $date = new DateTime($var["date"]);
-                                    echo $date->format('m/d/Y');
-                                    ?></td>
+                                <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
+                                <td><?php echo $obj->data_previsao_atendimento->format('d/m/Y'); ?></td>
+                                <td><?php echo $obj->data_termino_atendimento->format('d/m/Y'); ?></td>
                                 <td><?php echo $obj->observacoes ?></td>
 
                                 <!--TODO função deletarDemanda e clickDeletar-->
-                                <td> <button type="">Alterar</button> </td>
-                                <td> <button type="" onclick="<?php deletarDemanda('789'); ?>">Deletar</button> </td>
+                                <td> <button type="" onclick="deletarDemanda('123')">Alterar</button> </td>
+                                <td> <a href="index.php?action=edit">BLA</a> </td>
+                                <td> <button type="" onclick="clickDeletar();">Deletar</button> </td>
                             </tr>
                         <?php } ?>
                     </table>
@@ -221,6 +263,9 @@ function inserirDemanda()
         echo "<script>
                 alert('Dados adicionados com sucesso!');
              </script>";
+             #TODO parei aqui
+             #setcookie("sucessoInserir",);
+             header("location: index.php");
         exit;
     } else {
         echo "<script>
@@ -230,19 +275,31 @@ function inserirDemanda()
     }
 }
 
+#TODO funcoes para deletar
 function deletarDemanda($id_demanda)
 {
-    $query = "DELETE FROM atendimentos WHERE id_demanda = 'echo $id_demanda'";
+    $query = "DELETE FROM atendimentos WHERE id_demanda = '$id_demanda'";
     var_dump($query);
+    die();
 }
+
 ?>
 
 <script>
     function clickDeletar() {
         var result = "";
+
+        console.log("AQUI");
     }
 </script>
 
+
+<!-- 
+ Atendimento hr
+ plotar tabela
+ hr -> HOME 
+
+-->
 
 
 
