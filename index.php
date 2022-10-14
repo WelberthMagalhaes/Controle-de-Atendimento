@@ -29,7 +29,7 @@ include_once("connect.php");
 
 
         <div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
-            <h2> ATENDIMENTO </h2>
+            <h3> InfoBeta </h3>
         </div>
         <hr>
 
@@ -217,7 +217,7 @@ include_once("connect.php");
                     #PESQUISAR
                 case "pesquisa": ?>
 
-                    <h3>Pesquisar Atendimentos</h3>
+                    <h5>Pesquisar Atendimentos</h5>
                     <form name="pesquisar" method="post" action="index.php?action=pesquisaChave">
                         <hr>
                         <table class="table table-sm">
@@ -456,6 +456,7 @@ include_once("connect.php");
                         $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
                         ?>
 
+                        <h5>Atendimentos</h5>
                         <table class="table table-sm table-striped table-hover">
                             <?php
                             if (!sqlsrv_has_rows($resultado)) { ?>
