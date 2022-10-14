@@ -40,7 +40,6 @@ include_once("connect.php");
             $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
             alterarDemanda($id_demanda);
         } elseif ($function == "pesquisaPendentes") {
-            #TODO criar consultas pesquisa
             pesquisaPendentes();
         } else {
             echo 'Erro na verificação da função!';
@@ -195,7 +194,6 @@ include_once("connect.php");
                                                                             echo $obj->data_termino_atendimento->format('Y-m-d');
                                                                         } ?>">
                         <hr>
-                        <!--#TODO LIMPAR DATA DE ENCERRAMENTO NO DB-->
 
                         <label>Observações</label><br>
                         <input type="text" name="observacoes" placeholder="..." value="<?php echo $obj->observacoes ?>">
@@ -249,7 +247,7 @@ include_once("connect.php");
                             <td>
                                 <select name="atendente">
 
-                                    <option value="0">Escolha</option>
+                                    <option value="">Escolha</option>
                                     <?php $query = "SELECT * FROM atendentes ORDER BY nome";
                                     $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
 
@@ -304,7 +302,6 @@ include_once("connect.php");
 										WHERE (a.data_termino_atendimento = '1900-01-01' OR a.data_termino_atendimento = '');";
 
                     $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
-                    
                 } elseif ($pesquisa == "finalizados") {
                     $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
 	                                    FROM atendimentos AS a
@@ -313,71 +310,95 @@ include_once("connect.php");
 										WHERE NOT (a.data_termino_atendimento = '1900-01-01' OR a.data_termino_atendimento = '');";
 
                     $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
+                } elseif (($_POST['finalizado'] == ""      and $_POST['pendente'] == "") or  ($_POST['finalizado'] == "check" and $_POST['pendente'] == "check")) {
+                    #var_dump('AQUI'); die(); #TODO verificar erro com dados Ela e pendente "check"
 
-                }elseif (($_POST['finalizado'] == ""      and $_POST['pendente'] == ""      ) or  ($_POST['finalizado'] == "check" and $_POST['pendente'] == "check")) {
-                        #var_dump('AQUI'); die(); TODO verificar erro com dados Ela e pendente "check"
-                        $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
+                    if ($_POST["dataInicio"] == "") {
+                        $dataInicio = "1900-01-01";
+                    } else {
+                        $dataInicio = $_POST["dataInicio"];
+                    }
+
+                    if ($_POST["dataFim"] == "") {
+                        $dataFim = date_create()->format('Y-m-d');
+                    } else {
+                        $dataFim = $_POST["dataFim"];
+                    }
+
+                    $usuario = $_POST["usuario"];
+                    $atendente = $_POST["atendente"];
+                
+                    $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
 	                                    FROM atendimentos AS a
 		                                INNER JOIN usuarios   AS u    ON a.id_usuario = u.id_usuario
                                         INNER JOIN atendentes AS aten ON a.id_atendente = aten.id_atendente
-                                        WHERE (u.nome LIKE '%?%')
-                                              AND   (a.data_cadastro BETWEEN '?' AND '?') 
-                                              AND   (aten.nome LIKE '%?%'); ";
-                        var_dump('Query: '.$query);
-                        $params = [
-                            $_POST['usuario'],
-                            $_POST['dataInicio'],
-                            $_POST['dataFim'],
-                            $_POST['atendente']
-                        ];
-                    var_dump('Params: '.$params);die();
-                        $resultado = sqlsrv_query($conn, $query, $params) or die("Falha " . $query);
+                                        WHERE (u.nome LIKE '%$usuario%')
+                                              AND   (a.data_cadastro BETWEEN '$dataInicio' AND '$dataFim') 
+                                              AND   (aten.nome LIKE '%$atendente%'); ";
+                    
 
-                }elseif ( $_POST['finalizado'] == "check" and $_POST['pendente'] == ""      ) {
+                    $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
 
-                        $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
+                } elseif ($_POST['finalizado'] == "check" and $_POST['pendente'] == "") {
+
+                    if ($_POST["dataInicio"] == "") {
+                        $dataInicio = "1900-01-01";
+                    } else {
+                        $dataInicio = $_POST["dataInicio"];
+                    }
+
+                    if ($_POST["dataFim"] == "") {
+                        $dataFim = date_create()->format('Y-m-d');
+                    } else {
+                        $dataFim = $_POST["dataFim"];
+                    }
+                    $usuario = $_POST["usuario"];
+                    $atendente = $_POST["atendente"];
+
+                    $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
 	                                    FROM atendimentos AS a
 		                                INNER JOIN usuarios   AS u    ON a.id_usuario = u.id_usuario
                                         INNER JOIN atendentes AS aten ON a.id_atendente = aten.id_atendente
 										WHERE NOT (a.data_termino_atendimento = '1900-01-01' OR a.data_termino_atendimento = '')
-                                              AND (u.nome LIKE '%?%')
-                                              AND (a.data_cadastro BETWEEN '?' AND '?') 
-                                              AND (aten.nome LIKE '%?%'); ";
+                                              AND (u.nome LIKE '%$usuario%')
+                                              AND (a.data_cadastro BETWEEN '$dataInicio' AND '$dataFim') 
+                                              AND (aten.nome LIKE '%$atendente%'); ";
 
-                        $params = [
-                            $_POST['usuario'],
-                            $_POST['dataInicio'],
-                            $_POST['dataFim'],
-                            $_POST['atendente']
-                        ];
 
-                        $resultado = sqlsrv_query($conn, $query, $params) or die("Falha " . $query);
+                    $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
 
-                }elseif ( $_POST['finalizado'] == ""      and $_POST['pendente'] == "check" ) {
 
-                        $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
+                } elseif ($_POST['finalizado'] == ""      and $_POST['pendente'] == "check") {
+
+                    if ($_POST["dataInicio"] == "") {
+                        $dataInicio = "1900-01-01";
+                    } else {
+                        $dataInicio = $_POST["dataInicio"];
+                    }
+
+                    if ($_POST["dataFim"] == ""
+                    ) {
+                        $dataFim = date_create()->format('Y-m-d');
+                    } else {
+                        $dataFim = $_POST["dataFim"];
+                    }
+                    $usuario = $_POST["usuario"];
+                    $atendente = $_POST["atendente"];
+
+                    $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
 	                                    FROM atendimentos AS a
 		                                INNER JOIN usuarios   AS u    ON a.id_usuario = u.id_usuario
                                         INNER JOIN atendentes AS aten ON a.id_atendente = aten.id_atendente
 										WHERE (a.data_termino_atendimento = '1900-01-01' OR a.data_termino_atendimento = '')
-                                              AND (u.nome LIKE '%?%')
-                                              AND (a.data_cadastro BETWEEN '?' AND '?') 
-                                              AND (aten.nome LIKE '%?%'); ";
+                                              AND (u.nome LIKE '%$usuario%')
+                                              AND (a.data_cadastro BETWEEN '$dataInicio' AND '$dataFim') 
+                                              AND (aten.nome LIKE '%$atendente%'); ";
 
-                        $params = [
-                            $_POST['usuario'],
-                            $_POST['dataInicio'],
-                            $_POST['dataFim'],
-                            $_POST['atendente']
-                        ];
 
                     $resultado = sqlsrv_query($conn, $query, $params) or die("Falha " . $query);
                 }
 
             ?>
-
-
-
 
                 <h3>Pesquisar Atendimentos</h3>
 
@@ -473,13 +494,15 @@ include_once("connect.php");
                             </tr>
 
                             <?php
+                            $somaCustos = 0;
                             $count = 1;
                             while ($obj = sqlsrv_fetch_object($resultado)) { ?>
 
                                 <tr>
                                     <td><?php echo $count++ ?></td>
                                     <td><?php echo $obj->descricao_demanda ?></td>
-                                    <td><?php echo "R$" . $obj->custo ?></td>
+                                    <td><?php echo "R$" . $obj->custo;
+                                        $somaCustos += $obj->custo ?></td>
                                     <td><?php echo $obj->nomeUsuario ?></td>
                                     <td><?php echo $obj->nomeAtendente ?></td>
                                     <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
@@ -498,6 +521,11 @@ include_once("connect.php");
                                 </tr>
                         <?php }
                         } ?>
+                        <tr>
+                            <td></td>
+                            <td><strong> Total de custos: </strong></td>
+                            <td><strong> <?php echo "R$" . $somaCustos ?> </strong></td>
+                        </tr>
                     </table>
                 </div>
 
