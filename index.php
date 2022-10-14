@@ -288,7 +288,7 @@ include_once("connect.php");
 
             <?php break;
 
-                #TODO PAGINA PESQUISA                                        
+                # PAGINA PESQUISA                                        
             case "pesquisaChave":
 
                 $pesquisa = (isset($_GET['pesquisa'])) ? $_GET['pesquisa'] : NULL;
@@ -327,7 +327,7 @@ include_once("connect.php");
 
                     $usuario = $_POST["usuario"];
                     $atendente = $_POST["atendente"];
-                
+
                     $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
 	                                    FROM atendimentos AS a
 		                                INNER JOIN usuarios   AS u    ON a.id_usuario = u.id_usuario
@@ -335,10 +335,9 @@ include_once("connect.php");
                                         WHERE (u.nome LIKE '%$usuario%')
                                               AND   (a.data_cadastro BETWEEN '$dataInicio' AND '$dataFim') 
                                               AND   (aten.nome LIKE '%$atendente%'); ";
-                    
+
 
                     $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
-
                 } elseif ($_POST['finalizado'] == "check" and $_POST['pendente'] == "") {
 
                     if ($_POST["dataInicio"] == "") {
@@ -366,8 +365,6 @@ include_once("connect.php");
 
 
                     $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
-
-
                 } elseif ($_POST['finalizado'] == ""      and $_POST['pendente'] == "check") {
 
                     if ($_POST["dataInicio"] == "") {
@@ -376,7 +373,8 @@ include_once("connect.php");
                         $dataInicio = $_POST["dataInicio"];
                     }
 
-                    if ($_POST["dataFim"] == ""
+                    if (
+                        $_POST["dataFim"] == ""
                     ) {
                         $dataFim = date_create()->format('Y-m-d');
                     } else {
@@ -433,7 +431,8 @@ include_once("connect.php");
                                 <tr>
                                     <td><?php echo $count++ ?></td>
                                     <td><?php echo $obj->descricao_demanda ?></td>
-                                    <td><?php echo "R$" . $obj->custo ?></td>
+                                    <td><?php echo "R$" . $obj->custo;
+                                        $somaCustos += $obj->custo ?></td>
                                     <td><?php echo $obj->nomeUsuario ?></td>
                                     <td><?php echo $obj->nomeAtendente ?></td>
                                     <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
@@ -452,6 +451,12 @@ include_once("connect.php");
                                 </tr>
                         <?php }
                         } ?>
+                        <tr>
+                            <td></td>
+                            <td><strong> Soma dos custos: </strong></td>
+                            <td><strong> <?php echo "R$" . $somaCustos ?> </strong></td>
+                        </tr>
+
                     </table>
 
 
@@ -501,8 +506,7 @@ include_once("connect.php");
                                 <tr>
                                     <td><?php echo $count++ ?></td>
                                     <td><?php echo $obj->descricao_demanda ?></td>
-                                    <td><?php echo "R$" . $obj->custo;
-                                        $somaCustos += $obj->custo ?></td>
+                                    <td><?php echo "R$" . $obj->custo ?></td>
                                     <td><?php echo $obj->nomeUsuario ?></td>
                                     <td><?php echo $obj->nomeAtendente ?></td>
                                     <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
@@ -521,11 +525,7 @@ include_once("connect.php");
                                 </tr>
                         <?php }
                         } ?>
-                        <tr>
-                            <td></td>
-                            <td><strong> Total de custos: </strong></td>
-                            <td><strong> <?php echo "R$" . $somaCustos ?> </strong></td>
-                        </tr>
+                        
                     </table>
                 </div>
 
