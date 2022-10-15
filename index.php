@@ -6,14 +6,6 @@ include_once("connect.php");
 <!DOCTYPE html>
 <html lang="pt-br" dir="ltr">
 
-<!--
-<style>
-    tr {
-        border-bottom: 1px solid #ddd;
-    }
-</style>
--->
-
 <head>
 
     <meta charset="utf-8">
@@ -26,12 +18,12 @@ include_once("connect.php");
 
 <body>
     <div>
-
-
-        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
+        <div class="container text-center">
+            <br><br>
             <h3> InfoBeta </h3>
+            <hr>
         </div>
-        <hr>
+
 
         <?php
         $action = (isset($_GET['action'])) ? $_GET['action'] : NULL;
@@ -55,21 +47,24 @@ include_once("connect.php");
             <?php switch ($action):
                     #INCLUIR
                 case "add": ?>
-                    <div>
-                        <h5>Nova demanda:</h5>
+
+                    <div class="container d-flex w-80 justify-content">
+                        <h6>Nova demanda:</h6>
                     </div>
-                    <div>
+
+                    <div class="container d-flex w-80 justify-content ">
+
                         <form action="index.php" method="post">
 
                             <input type="hidden" name="function" value="inserirDemanda">
 
                             <label>Descrição</label><br>
                             <input type="text" name="descricao_add" id="descricao_add" required>
-                            <hr>
+                            <br>
 
                             <label>Custo</label><br>
                             <input type="number" name="custo_add" placeholder="00,00" min="0" step="0.01" required>
-                            <hr>
+                            <br>
 
                             <label>Usuário</label><br>
                             <select name="id_usuario_add" required>
@@ -83,7 +78,7 @@ include_once("connect.php");
                                 <?php } ?>
 
                             </select>
-                            <hr>
+                            <br>
 
                             <label>Atendente</label><br>
                             <select name="id_atendente_add" required>
@@ -96,34 +91,34 @@ include_once("connect.php");
 
                                 <?php } ?>
 
-                            </select>
-                            <hr>
+                            </select> <br>
 
                             <label>Data do cadastro</label><br>
                             <input type="date" name="data_add" value="<?php echo date_create()->format('Y-m-d') ?>" required>
-                            <hr>
+                            <br>
 
                             <label>Previsão de atendimento</label><br>
                             <input type="date" name="data_previsao" required>
-                            <hr>
+                            <br>
 
                             <label>Data de encerramento</label><br>
                             <input type="date" name="data_termino" value="NULL">
-                            <hr>
+                            <br>
 
                             <label>Observações</label><br>
                             <input type="text" name="observacoes_add" placeholder="...">
-                            <br><br>
+                            <br>
 
                             <input type="submit" name="submit" value="Adicionar">
 
                         </form>
                     </div>
-                <?php break;
+        </div>
+    <?php break;
 
                     #EDITAR
                 case "edit": ?>
-                    <?php $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
+        <?php $id_demanda = (isset($_GET['id_demanda'])) ? $_GET['id_demanda'] : NULL;
 
                     $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, a.id_usuario, a.id_atendente, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
 	                                    FROM atendimentos AS a
@@ -133,79 +128,79 @@ include_once("connect.php");
 
                     $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
                     $obj = sqlsrv_fetch_object($resultado);
-                    ?>
+        ?>
 
 
-                    <div>
-                        <h4>Alterar:</h4>
-                    </div>
-                    <div>
-                        <form action="index.php?id_demanda=<?php echo $obj->id_demanda ?>" method="post">
+        <div class="container d-flex w-80 justify-content">
+            <h5>Alterar:</h5>
+        </div>
+        <div class="container d-flex w-80 justify-content">
+            <form action="index.php?id_demanda=<?php echo $obj->id_demanda ?>" method="post">
 
-                            <input type="hidden" name="function" value="alterarDemanda">
+                <input type="hidden" name="function" value="alterarDemanda">
 
-                            <label>Descrição</label><br>
-                            <input type="text" name="descricao" id="descricao_add" value="<?php echo $obj->descricao_demanda ?>" required>
-                            <hr>
+                <label>Descrição</label><br>
+                <input type="text" name="descricao" id="descricao_add" value="<?php echo $obj->descricao_demanda ?>" required>
+                <br>
 
-                            <label>Custo</label><br>
-                            <input type="number" name="custo" placeholder="00,00" value="<?php echo $obj->custo ?>" min="0" step="0.01" required>
-                            <hr>
-                            <label>Usuário</label><br>
-                            <select name="id_usuario" required>
-                                <option value="<?php echo $obj->id_usuario ?>"> <?php echo $obj->nomeUsuario ?> </option>
-                                <?php var_dump($obj->nomeUsuario) ?>
-                                <?php $query = "SELECT * FROM usuarios ORDER BY nome";
-                                $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
+                <label>Custo</label><br>
+                <input type="number" name="custo" placeholder="00,00" value="<?php echo $obj->custo ?>" min="0" step="0.01" required>
+                <br>
+                <label>Usuário</label><br>
+                <select name="id_usuario" required>
+                    <option value="<?php echo $obj->id_usuario ?>"> <?php echo $obj->nomeUsuario ?> </option>
+                    <?php var_dump($obj->nomeUsuario) ?>
+                    <?php $query = "SELECT * FROM usuarios ORDER BY nome";
+                    $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
 
-                                while ($obj2 = sqlsrv_fetch_object($resultado)) { ?>
-                                    <option value="<?php echo $obj2->id_usuario ?>"> <?php echo $obj2->nome ?> </option>
+                    while ($obj2 = sqlsrv_fetch_object($resultado)) { ?>
+                        <option value="<?php echo $obj2->id_usuario ?>"> <?php echo $obj2->nome ?> </option>
 
-                                <?php } ?>
+                    <?php } ?>
 
-                            </select>
-                            <hr>
+                </select>
+                <br>
 
-                            <label>Atendente</label><br>
-                            <select name="id_atendente" required>
-                                <option value="<?php echo $obj->id_atendente ?>"> <?php echo $obj->nomeAtendente ?> </option>
-                                <?php $query = "SELECT * FROM atendentes ORDER BY nome";
-                                $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
+                <label>Atendente</label><br>
+                <select name="id_atendente" required>
+                    <option value="<?php echo $obj->id_atendente ?>"> <?php echo $obj->nomeAtendente ?> </option>
+                    <?php $query = "SELECT * FROM atendentes ORDER BY nome";
+                    $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
 
-                                while ($obj3 = sqlsrv_fetch_object($resultado)) { ?>
-                                    <option value="<?php echo $obj3->id_atendente ?>"> <?php echo $obj3->nome ?> </option>
+                    while ($obj3 = sqlsrv_fetch_object($resultado)) { ?>
+                        <option value="<?php echo $obj3->id_atendente ?>"> <?php echo $obj3->nome ?> </option>
 
-                                <?php } ?>
+                    <?php } ?>
 
-                            </select>
-                            <hr>
+                </select>
+                <br>
 
-                            <label>Data do cadastro</label><br>
-                            <input type="date" name="data" value="<?php echo $obj->data_cadastro->format('Y-m-d') ?>" required>
-                            <hr>
+                <label>Data do cadastro</label><br>
+                <input type="date" name="data" value="<?php echo $obj->data_cadastro->format('Y-m-d') ?>" required>
+                <br>
 
-                            <label>Previsão de atendimento</label><br>
-                            <input type="date" name="data_previsao" value="<?php echo $obj->data_previsao_atendimento->format('Y-m-d') ?>" required>
-                            <hr>
+                <label>Previsão de atendimento</label><br>
+                <input type="date" name="data_previsao" value="<?php echo $obj->data_previsao_atendimento->format('Y-m-d') ?>" required>
+                <br>
 
-                            <label>Data de encerramento</label><br>
-                            <input type="date" name="data_termino" value="<?php if ($obj->data_termino_atendimento->format('d/m/Y') == '01/01/1900') {
-                                                                                echo "";
-                                                                            } else {
-                                                                                echo $obj->data_termino_atendimento->format('Y-m-d');
-                                                                            } ?>">
-                            <hr>
+                <label>Data de encerramento</label><br>
+                <input type="date" name="data_termino" value="<?php if ($obj->data_termino_atendimento->format('d/m/Y') == '01/01/1900') {
+                                                                    echo "";
+                                                                } else {
+                                                                    echo $obj->data_termino_atendimento->format('Y-m-d');
+                                                                } ?>">
+                <br>
 
-                            <label>Observações</label><br>
-                            <input type="text" name="observacoes" placeholder="..." value="<?php echo $obj->observacoes ?>">
-                            <br><br>
+                <label>Observações</label><br>
+                <input type="text" name="observacoes" placeholder="..." value="<?php echo $obj->observacoes ?>">
+                <br><br>
 
-                            <input type="submit" name="submit" value="Salvar">
+                <input type="submit" name="submit" value="Salvar">
 
-                        </form>
-                    </div>
+            </form>
+        </div>
 
-                <?php break;
+    <?php break;
 
                     #DELETAR            
                 case "delete":
@@ -216,76 +211,76 @@ include_once("connect.php");
 
                     #PESQUISAR
                 case "pesquisa": ?>
+        <div class="container w-80">
+            <h5>Pesquisar Atendimentos</h5>
+            <form name="pesquisar" method="post" action="index.php?action=pesquisaChave">
+                <br>
+                <table class="table table-sm">
+                    <tr>
+                        <td>Usuário:</td>
+                        <td><input type="text" name="usuario" size="40" placeholder="Inserir nome ou parte dele"></td>
+                    </tr>
+                    <tr>
+                        <td>Data do cadastro:</td>
+                        <td>
+                            <input type="date" id="dataInicio" name="dataInicio">
+                            <label>a</label>
+                            <input type="date" id="dataFim" name="dataFim">
+                            <small>Preencher os dois campos, ou nenhum!</small>
+                        </td>
+                    </tr>
 
-                    <h5>Pesquisar Atendimentos</h5>
-                    <form name="pesquisar" method="post" action="index.php?action=pesquisaChave">
-                        <hr>
-                        <table class="table table-sm">
-                            <tr>
-                                <td>Usuário:</td>
-                                <td><input type="text" name="usuario" size="40" placeholder="Inserir nome ou parte dele"></td>
-                            </tr>
-                            <tr>
-                                <td>Data do cadastro:</td>
-                                <td>
-                                    <input type="date" id="dataInicio" name="dataInicio">
-                                    <label>a</label>
-                                    <input type="date" id="dataFim" name="dataFim">
-                                    <small>Preencher os dois campos, ou nenhum!</small>
-                                </td>
-                            </tr>
+                    <tr>
+                        <td>Atendente:</td>
+                        <td>
+                            <select name="atendente">
 
-                            <tr>
-                                <td>Atendente:</td>
-                                <td>
-                                    <select name="atendente">
+                                <option value="">Escolha</option>
+                                <?php $query = "SELECT * FROM atendentes ORDER BY nome";
+                                $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
 
-                                        <option value="">Escolha</option>
-                                        <?php $query = "SELECT * FROM atendentes ORDER BY nome";
-                                        $resultado = sqlsrv_query($conn, $query) or die("Falha " . $query);
+                                while ($obj = sqlsrv_fetch_object($resultado)) { ?>
+                                    <option value="<?php echo $obj->nome ?>"> <?php echo $obj->nome ?> </option>
 
-                                        while ($obj = sqlsrv_fetch_object($resultado)) { ?>
-                                            <option value="<?php echo $obj->nome ?>"> <?php echo $obj->nome ?> </option>
+                                <?php } ?>
 
-                                        <?php } ?>
+                            </select>
 
-                                    </select>
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label for="finalizado">Atendimento finalizado</label>
-                                </td>
-                                <td>
-                                    <input type="checkbox" id="finalizado" name="finalizado" value="check"><br>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label for="pendente">Atendimento pendente</label>
-                                </td>
-                                <td>
-                                    <input type="checkbox" id="pendente" name="pendente" value="check"><br>
-                                </td>
-                            </tr>
-
-
-                        </table>
-                        <br>
-                        <input type=submit class=bt Value=Pesquisar>
-                    </form>
-                    <br>
-                    <br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="finalizado">Atendimento finalizado</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="finalizado" name="finalizado" value="check"><br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="pendente">Atendimento pendente</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="pendente" name="pendente" value="check"><br>
+                        </td>
+                    </tr>
 
 
-                <?php break;
+                </table>
+                <br>
+                <input type=submit class=bt Value=Pesquisar>
+            </form>
+        </div>
+        <br>
+        <br>
+
+
+    <?php break;
 
                     # PAGINA PESQUISA                                        
                 case "pesquisaChave":
 
                     if (($_POST['finalizado'] == ""      and $_POST['pendente'] == "") or  ($_POST['finalizado'] == "check" and $_POST['pendente'] == "check")) {
-                        #var_dump('AQUI'); die(); #TODO verificar erro com dados Ela e pendente "check"
 
                         if ($_POST["dataInicio"] == "") {
                             $dataInicio = "1900-01-01";
@@ -370,163 +365,177 @@ include_once("connect.php");
                         $resultado = sqlsrv_query($conn, $query, $params) or die("Falha " . $query);
                     }
 
-                ?>
+    ?>
 
-                    <h5>Pesquisar Atendimentos</h5>
+        <div class="container w-80">
+            <h5>Pesquisar Atendimentos</h5>
 
-                    <div>
-                        <table class="table table-sm table-striped table-hover">
-                            <?php
-                            if (!sqlsrv_has_rows($resultado)) { ?>
-                                <tr>
-                                    <th>
-                                        <h4> Dados não encontrados.</h4>
-                                    </th>
-                                </tr>
-                            <?php
-                            } else { ?>
-                                <thead class="thead-dark">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Descrição</th>
-                                        <th>Custo</th>
-                                        <th>Usuário</th>
-                                        <th>Atendente</th>
-                                        <th>Data de abertura</th>
-                                        <th>Previsão de atendimento</th>
-                                        <th>Data de término</th>
-                                        <th>Observações</th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-
-
-                                <?php
-                                $count = 1;
-                                while ($obj = sqlsrv_fetch_object($resultado)) { ?>
-
-                                    <tr>
-                                        <td><?php echo $count++ ?></td>
-                                        <td><?php echo $obj->descricao_demanda ?></td>
-                                        <td><?php echo "R$" . $obj->custo;
-                                            $somaCustos += $obj->custo ?></td>
-                                        <td><?php echo $obj->nomeUsuario ?></td>
-                                        <td><?php echo $obj->nomeAtendente ?></td>
-                                        <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
-                                        <td><?php echo $obj->data_previsao_atendimento->format('d/m/Y'); ?></td>
-                                        <td>
-                                            <?php if ($obj->data_termino_atendimento->format('d/m/Y') == '01/01/1900') {
-                                                echo "";
-                                            } else {
-                                                echo $obj->data_termino_atendimento->format('d/m/Y');
-                                            } ?>
-                                        </td>
-                                        <td><?php echo $obj->observacoes ?></td>
-
-                                        <td> <a href="index.php?action=edit&id_demanda=<?php echo $obj->id_demanda ?>">Alterar</a> </td>
-                                        <td> <a href="index.php?action=delete&id_demanda=<?php echo $obj->id_demanda ?>">Deletar</a> </td>
-                                    </tr>
-                            <?php }
-                            } ?>
-                            <tr>
-                                <td></td>
-                                <td><strong> Soma dos custos: </strong></td>
-                                <td><strong> <?php echo "R$" . $somaCustos ?> </strong></td>
-                            </tr>
-
-                        </table>
+            <table class="table table-sm table-striped table-hover">
+                <?php
+                    if (!sqlsrv_has_rows($resultado)) { ?>
+                    <tr>
+                        <th>
+                            <h4> Dados não encontrados.</h4>
+                        </th>
+                    </tr>
+                <?php
+                    } else { ?>
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Descrição</th>
+                            <th>Custo</th>
+                            <th>Usuário</th>
+                            <th>Atendente</th>
+                            <th>Data de abertura</th>
+                            <th>Previsão de atendimento</th>
+                            <th>Data de término</th>
+                            <th>Observações</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
 
 
+                    <?php
+                        $count = 1;
+                        while ($obj = sqlsrv_fetch_object($resultado)) { ?>
 
-                    </div>
+                        <tr>
+                            <td><?php echo $count++ ?></td>
+                            <td><?php echo $obj->descricao_demanda ?></td>
+                            <td><?php echo "R$" . $obj->custo;
+                                $somaCustos += $obj->custo ?></td>
+                            <td><?php echo $obj->nomeUsuario ?></td>
+                            <td><?php echo $obj->nomeAtendente ?></td>
+                            <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
+                            <td><?php echo $obj->data_previsao_atendimento->format('d/m/Y'); ?></td>
+                            <td>
+                                <?php if ($obj->data_termino_atendimento->format('d/m/Y') == '01/01/1900') {
+                                    echo "";
+                                } else {
+                                    echo $obj->data_termino_atendimento->format('d/m/Y');
+                                } ?>
+                            </td>
+                            <td><?php echo $obj->observacoes ?></td>
+
+                            <td> <a href="index.php?action=edit&id_demanda=<?php echo $obj->id_demanda ?>">Alterar</a> </td>
+                            <td> <a href="index.php?action=delete&id_demanda=<?php echo $obj->id_demanda ?>">Deletar</a> </td>
+                        </tr>
+                <?php }
+                    } ?>
+                <tr>
+                    <td></td>
+                    <td><strong> Soma dos custos: </strong></td>
+                    <td><strong> <?php echo "R$" . $somaCustos ?> </strong></td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    
+                </tr>
+
+            </table>
 
 
-                <?php break;
+
+        </div>
+
+
+    <?php break;
 
                     # HOME            
                 default:
-                ?>
-                    <div>
-                        <?php $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
+    ?>
+        <div class="container w-80">
+            <?php $query = "SELECT  a.id_demanda, a.descricao_demanda, a.custo, u.nome AS 'nomeUsuario', aten.nome AS 'nomeAtendente', a.data_cadastro, a.data_previsao_atendimento, a.data_termino_atendimento, a.observacoes
 	                                    FROM atendimentos AS a
 		                                INNER JOIN usuarios   AS u    ON a.id_usuario = u.id_usuario
                                         INNER JOIN atendentes AS aten ON a.id_atendente = aten.id_atendente;";
 
-                        $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
-                        ?>
+                    $resultado = sqlsrv_query($conn, $query) or die(print_r(sqlsrv_errors(), true));
+            ?>
 
-                        <h5>Atendimentos</h5>
-                        <table class="table table-sm table-striped table-hover">
-                            <?php
-                            if (!sqlsrv_has_rows($resultado)) { ?>
-                                <tr>
-                                    Não há atendimentos para exibir.
-                                </tr>
-                            <?php
-                            } else { ?>
+            <h5>Atendimentos</h5>
+            <table class="table table-sm table-striped table-hover">
+                <?php
+                    if (!sqlsrv_has_rows($resultado)) { ?>
+                    <tr>
+                        Não há atendimentos para exibir.
+                    </tr>
+                <?php
+                    } else { ?>
 
-                                <thead class="thead-dark">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Descrição</th>
-                                        <th>Custo</th>
-                                        <th>Usuário</th>
-                                        <th>Atendente</th>
-                                        <th>Data de abertura</th>
-                                        <th>Previsão de atendimento</th>
-                                        <th>Data de término</th>
-                                        <th>Observações</th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Descrição</th>
+                            <th>Custo</th>
+                            <th>Usuário</th>
+                            <th>Atendente</th>
+                            <th>Data de abertura</th>
+                            <th>Previsão de atendimento</th>
+                            <th>Data de término</th>
+                            <th>Observações</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
 
-                                <?php
-                                $somaCustos = 0;
-                                $count = 1;
-                                while ($obj = sqlsrv_fetch_object($resultado)) { ?>
+                    <?php
+                        $somaCustos = 0;
+                        $count = 1;
+                        while ($obj = sqlsrv_fetch_object($resultado)) { ?>
 
-                                    <tr>
-                                        <td><?php echo $count++ ?></td>
-                                        <td><?php echo $obj->descricao_demanda ?></td>
-                                        <td><?php echo "R$" . $obj->custo ?></td>
-                                        <td><?php echo $obj->nomeUsuario ?></td>
-                                        <td><?php echo $obj->nomeAtendente ?></td>
-                                        <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
-                                        <td><?php echo $obj->data_previsao_atendimento->format('d/m/Y'); ?></td>
-                                        <td>
-                                            <?php if ($obj->data_termino_atendimento->format('d/m/Y') == '01/01/1900') {
-                                                echo "";
-                                            } else {
-                                                echo $obj->data_termino_atendimento->format('d/m/Y');
-                                            } ?>
-                                        </td>
-                                        <td><?php echo $obj->observacoes ?></td>
+                        <tr>
+                            <td><?php echo $count++ ?></td>
+                            <td><?php echo $obj->descricao_demanda ?></td>
+                            <td><?php echo "R$" . $obj->custo ?></td>
+                            <td><?php echo $obj->nomeUsuario ?></td>
+                            <td><?php echo $obj->nomeAtendente ?></td>
+                            <td><?php echo $obj->data_cadastro->format('d/m/Y'); ?></td>
+                            <td><?php echo $obj->data_previsao_atendimento->format('d/m/Y'); ?></td>
+                            <td>
+                                <?php if ($obj->data_termino_atendimento->format('d/m/Y') == '01/01/1900') {
+                                    echo "";
+                                } else {
+                                    echo $obj->data_termino_atendimento->format('d/m/Y');
+                                } ?>
+                            </td>
+                            <td><?php echo $obj->observacoes ?></td>
 
-                                        <td> <a href="index.php?action=edit&id_demanda=<?php echo $obj->id_demanda ?>">Alterar</a> </td>
-                                        <td> <a href="index.php?action=delete&id_demanda=<?php echo $obj->id_demanda ?>">Deletar</a> </td>
-                                    </tr>
-                            <?php }
-                            } ?>
+                            <td> <a href="index.php?action=edit&id_demanda=<?php echo $obj->id_demanda ?>">Alterar</a> </td>
+                            <td> <a href="index.php?action=delete&id_demanda=<?php echo $obj->id_demanda ?>">Deletar</a> </td>
+                        </tr>
+                <?php }
+                    } ?>
 
-                        </table>
-                    </div>
-
-            <?php endswitch; ?>
+            </table>
         </div>
 
+<?php endswitch; ?>
+    </div>
+
+
+
+    <div class="container text-center w-80 justify-content-center display">
         <hr>
-
-        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
-            <nav>
-                <a style="margin-right: 30px" href="index.php">Home</a>
-
-                <a style="margin-right: 30px" href="index.php?action=add">Incluir</a>
-
-                <a style="margin-rigth: 30px" href="index.php?action=pesquisa">Pesquisar</a>
-            </nav>
-        </div>
+        <ul class="nav nav-pills justify-content-center flex-sm-row">
+            <li class="nav-item">
+                <a class="nav-link margin:" 20" href="index.php">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " href="index.php?action=add">Incluir</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " href="index.php?action=pesquisa">Pesquisar</a>
+            </li>
+        </ul>
+    </div>
 
     </div>
 
